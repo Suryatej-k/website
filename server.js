@@ -103,32 +103,10 @@ async function getConsumptionData(userId, role, range)
             break;
     }
     let consumptionData;
-    console.log(startDate,endDate);
     if (role === 'admin') {
         consumptionData = await collection.aggregate([
-            {
-                $addFields: {
-                    dateObj: {
-                        $dateFromString: {
-                            dateString: "$date"
-                        }
-                    }
-                }
-            },
-            {
-                $match: {
-                    dateObj: {
-                        $gte: startDate,
-                        $lte: endDate
-                    }
-                }
-            },
-            {
-                $group: {
-                    _id: "$date",
-                    total: { $sum: "$use[kw]" }
-                }
-            }
+            { $match: { date: { $gte: startDate.toISOString().split('T')[0], $lte: endDate.toISOString().split('T')[0] } } },
+            { $group: { _id: "$date", total: { $sum: "$use[kw]" } } }
         ]).toArray();
     } else {
         consumptionData = await collection.find({
@@ -173,29 +151,8 @@ async function getGenerationData(userId, role, range) {
     let generationData;
     if (role === 'admin') {
         generationData = await collection.aggregate([
-            {
-                $addFields: {
-                    dateObj: {
-                        $dateFromString: {
-                            dateString: "$date"
-                        }
-                    }
-                }
-            },
-            {
-                $match: {
-                    dateObj: {
-                        $gte: startDate,
-                        $lte: endDate
-                    }
-                }
-            },
-            {
-                $group: {
-                    _id: "$date",
-                    total: { $sum: "$gen[kw]" }
-                }
-            }
+            { $match: { date: { $gte: startDate.toISOString().split('T')[0], $lte: endDate.toISOString().split('T')[0] } } },
+            { $group: { _id: "$date", total: { $sum: "$gen[kw]" } } }
         ]).toArray();
     } else {
         generationData = await collection.find({
